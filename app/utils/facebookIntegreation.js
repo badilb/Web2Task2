@@ -3,10 +3,10 @@ const { response } = require('express');
 require('dotenv').config();
 
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
-const PAGE_ID = '236477239542646';
+const PAGE_ID = process.env.PAGE_ID;
 const LATEST_API_VERSION = 'v12.0';
 
-const PSID = '7224403757652362';
+const PSID = process.env.PSID;
 
 exports.sendMessage = async (messageText) => {
   try {
