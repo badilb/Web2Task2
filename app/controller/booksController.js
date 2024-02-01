@@ -1,5 +1,6 @@
 const bookService = require('../services/bookService')
 const HttpStatus = require('http-status')
+const { sendMessage } = require('../utils/facebookIntegreation')
 
 exports.getAllBooks = async (req, res) => {
     try {
@@ -42,6 +43,7 @@ exports.addBook = async (req, res) => {
         const message = bookService.addBook(book)
 
         res.status(HttpStatus.OK).json(message)
+        sendMessage("Book was added".concat(message))
     } catch (error) {
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             message: error.message,
