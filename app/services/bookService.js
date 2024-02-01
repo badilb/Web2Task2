@@ -1,5 +1,7 @@
 const bookValidate = require('../validate/bookValidate')
 var arraySort = require('array-sort')
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient()
 let books = []
 let ID = 0
 
@@ -27,6 +29,7 @@ exports.getAllBooks = (
             )
         }
     }
+
 
     if (typeof reverseSort !== 'undefined') {
         arraySort(filtered_books, 'price', { reverse: true })

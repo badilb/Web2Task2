@@ -1,37 +1,72 @@
 const genreValidate = require('../validate/genreValidate')
-let genres = []
-let ID = 0
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient()
 
-exports.getAllGenre = () => {
-    return genres
+
+exports.getAllGenre = async () => {
+    return await prisma.genre.findMany();
 }
 
-exports.addGenre = (genreBody) => {
+exports.addGenre = async (genreBody) => {
     const { valid, message } = genreValidate.validate(genreBody)
 
     if (!valid) {
         return message
     }
 
-    genreBody.id = ID++
-    genres.push(genreBody)
-    return message
+    const created = await prisma.genre.create({data:{name : genreBody.name}})
+    if (created === null){
+        return 'Not created'
+    }
+    return 'created'
 }
 
-exports.updateGenre = (genreId, updateGenre) => {
-    let genreIndex = genres.findIndex((genre) => genre.id === parseInt(genreId))
-    if (genreIndex !== -1) {
-        genres[genreIndex] = { ...genres[genreIndex], ...updateGenre }
-        return 'The genre is updated'
-    }
-    return 'The genre does not exist'
-}
 
-exports.deleteGenre = (genreId) => {
-    const index = genres.findIndex((genre) => genre.id === parseInt(genreId))
-    if (index !== -1) {
-        genres.splice(index, 1)
-        return 'Genre deleted'
+exports.updateGenre = async (genreId, updateGenre) => {
+    try {
+        const updated = await prisma.genre.update({
+            where: {
+                id: parseInt(genreId, 10)
+            },
+            data: {
+                name: updateGenre.name
+            }
+        });
+
+        if (updated) {
+            return 'Genre updated';
+        } else {
+            return 'Genre not found';
+        }
+    } catch (error) {
+        if (error.code === 'P2025') {
+            return 'Genre not found';
+        }
+
+        return 'Error updating genre';
     }
-    return 'Genre not found'
-}
+};
+
+
+exports.deleteGenre = async (genreId) => {
+    try {
+        const deleted = await prisma.genre.delete({
+            where: {
+                id: parseInt(genreId, 10)
+            }
+        });
+        if (deleted) {
+            return 'Genre deleted';
+        } else {
+            return 'Genre not found';
+        }
+    } catch (error) {
+
+        if (error.code === 'P2025') {
+            return 'Genre not found';
+        }
+
+        return 'Error deleting genre';
+    }
+};
+

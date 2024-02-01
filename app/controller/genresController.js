@@ -3,7 +3,7 @@ const HttpStatus = require('http-status')
 
 exports.getAllGenre = async (req, res) => {
     try {
-        const genres = genreService.getAllGenre()
+        const genres = await genreService.getAllGenre()
 
         res.status(HttpStatus.OK).json(genres)
     } catch (error) {
@@ -16,7 +16,7 @@ exports.getAllGenre = async (req, res) => {
 exports.addGenre = async (req, res) => {
     try {
         const genre = req.body
-        const message = genreService.addGenre(genre)
+        const message = await genreService.addGenre(genre)
 
         res.status(HttpStatus.OK).json(message)
     } catch (error) {
@@ -31,7 +31,7 @@ exports.updateGenre = async (req, res) => {
         const genreId = req.params.id
         const updateGenre = req.body
 
-        const message = genreService.updateGenre(genreId, updateGenre)
+        const message = await genreService.updateGenre(genreId, updateGenre)
 
         res.status(HttpStatus.OK).json(message)
     } catch (error) {
@@ -45,7 +45,7 @@ exports.deleteGenre = async (req, res) => {
     try {
         const genreId = req.params.id
 
-        const message = genreService.deleteGenre(genreId)
+        const message = await genreService.deleteGenre(genreId)
 
         res.status(HttpStatus.OK).json(message)
     } catch (error) {
