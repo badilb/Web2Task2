@@ -32,7 +32,7 @@ exports.readAll = (excelFile) => {
             parseInt(bookData.pageCount),
             parseInt(bookData.price)
         )
-        const result = bookService.addBook(bookObject)
+        const result = bookService.addBook(bookObject, "zxc")
         console.log(result)
     })
 

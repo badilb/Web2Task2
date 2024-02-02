@@ -13,7 +13,7 @@ exports.getAllBooks = async (req, res) => {
         const startIndex = 0
         const endIndex = page_param * limit_param
 
-        const books = bookService.getAllBooks(
+        const books = await bookService.getAllBooks(
             price_param,
             priceOption,
             reverseSort,
@@ -22,9 +22,11 @@ exports.getAllBooks = async (req, res) => {
             endIndex
         )
 
+        console.log(books)
+
         const response = {
             totalBooks: books.length,
-            books: books.slice(startIndex, endIndex),
+            books: books,
             currentPage: page_param,
             totalPages: Math.ceil(books.length / limit_param),
         }
@@ -40,10 +42,9 @@ exports.getAllBooks = async (req, res) => {
 exports.addBook = async (req, res) => {
     try {
         const book = req.body
-        const message = bookService.addBook(book)
+        const message = bookService.addBook(book, "qwe")
 
         res.status(HttpStatus.OK).json(message)
-        sendMessage("Book was added".concat(message))
     } catch (error) {
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             message: error.message,

@@ -1,9 +1,10 @@
 const bookValidate = require('../validate/bookValidate')
 var arraySort = require('array-sort')
 const { PrismaClient } = require('@prisma/client');
+const { sendMessage } = require('../utils/facebookIntegreation');
 const prisma = new PrismaClient()
 
-exports.getAllBooks = (
+exports.getAllBooks = async (
     price_param,
     priceOption,
     reverseSort,
@@ -11,36 +12,36 @@ exports.getAllBooks = (
     startIndex,
     endIndex
 ) => {
-    let filtered_books = books
+    try {
+        const filters = {};
 
-    if (
-        typeof price_param !== 'undefined' ||
-        typeof priceOption !== 'undefined'
-    ) {
-        if (priceOption === 'more') {
-            filtered_books = filtered_books.filter(
-                (author) => author.price > price_param
-            )
-        } else if (priceOption === 'less') {
-            filtered_books = filtered_books.filter(
-                (author) => author.price < price_param
-            )
+        if (typeof price_param !== 'undefined' || typeof priceOption !== 'undefined') {
+            if (priceOption === 'more') {
+                filters.price = { gt: price_param };
+            } else if (priceOption === 'less') {
+                filters.price = { lt: price_param };
+            }
         }
+
+        const orderBy = reverseSort ? { price: 'desc' } : { price: 'asc' };
+
+        const books = await prisma.book.findMany({
+            where: filters,
+            orderBy: orderBy,
+            take: limit_param,
+            skip: startIndex,
+        });
+
+        return books;
+    } catch (error) {
+        console.error('Error fetching books:', error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
     }
+};
 
-
-    if (typeof reverseSort !== 'undefined') {
-        arraySort(filtered_books, 'price', { reverse: true })
-    } else {
-        arraySort(filtered_books, 'price', { reverse: false })
-    }
-
-    filtered_books = filtered_books.slice(startIndex, endIndex)
-
-    return filtered_books
-}
-
-exports.addBook = async (book_body) => {
+exports.addBook = async (book_body, flag) => {
     const { valid, message } = bookValidate.validate(book_body)
 
     if (!valid) {
@@ -63,8 +64,27 @@ exports.addBook = async (book_body) => {
     if (created === null){
         return 'Not created'
     }
+
+    if (flag === "qwe") {
+        sendMessage("Book was added with title: ".concat(book_body.title))
+    }
     return 'created'
 }
+
+exports.getAuthorBooks = async (authorName) => {
+    try {
+        return await prisma.$queryRaw`
+            SELECT b.*
+            FROM Book b
+            LEFT JOIN Author a ON  b.author = CONCAT(a.name , " ", a.surname)
+            WHERE a.name = ${authorName};
+        `;
+    } catch (error) {
+       return 'Error fetching books';
+    } finally {
+        await prisma.$disconnect();
+    }
+};
 
 exports.updateBook = async (bookId, updatedBook) => {
     try {

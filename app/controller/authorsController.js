@@ -1,4 +1,5 @@
 const authorService = require('../services/authorService')
+const bookService = require('../services/bookService')
 const HttpStatus = require('http-status')
 
 exports.getAllAuthor = async (req, res) => {
@@ -7,6 +8,21 @@ exports.getAllAuthor = async (req, res) => {
         const authors = await authorService.getAllAuthor()
 
         res.status(HttpStatus.OK).json(authors)
+    } catch (error) {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            message: error.message,
+        })
+    }
+}
+
+exports.getAuthorBooks = async (req, res) => {
+    try {
+
+        authornaem = req.query.name
+        console.log(authornaem)
+        const books = await bookService.getAuthorBooks(authornaem)
+        console.log(books)
+        res.status(HttpStatus.OK).json(books)
     } catch (error) {
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             message: error.message,
